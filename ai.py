@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, jsonify
-import subprocess
 import sqlite3
+import os
+from openai import OpenAI
 
+# ------------------ CONFIG ------------------
 app = Flask(__name__)
 
-OLLAMA_PATH = r"C:\Users\akula\AppData\Local\Programs\Ollama\ollama.exe"
-MODEL = "gemma3:1b"
+# OpenAI client (API key from Render ENV)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ------------------ DATABASE ------------------
 conn = sqlite3.connect("chat.db", check_same_thread=False)
 cur = conn.cursor()
 
@@ -19,50 +22,34 @@ CREATE TABLE IF NOT EXISTS chat (
 """)
 conn.commit()
 
-
-def clean_text(text):
-    return text.encode("utf-8", "ignore").decode("utf-8", "ignore")
-
-
-def ask_ollama(msg):
-    system_prompt = (
-        "You are My AI Chatbot.\n"
-        "Your name is My AI.\n"
-        "You are friendly and helpful.\n"
-        "Do NOT mention Google, Gemma, or DeepMind.\n"
+# ------------------ AI FUNCTION ------------------
+def ask_ai(message):
+    response = client.responses.create(
+        model="gpt-4o-mini",
+        input=message
     )
+    return response.output_text
 
-    prompt = system_prompt + "\nUser: " + msg + "\nAI:"
-
-    result = subprocess.run(
-        [OLLAMA_PATH, "run", MODEL],
-        input=prompt,
-        text=True,
-        encoding="utf-8",
-        errors="ignore",
-        capture_output=True
-    )
-
-    return clean_text(result.stdout.strip())
-
-
+# ------------------ ROUTES ------------------
 @app.route("/")
 def home():
     cur.execute("SELECT user, ai FROM chat")
     chats = cur.fetchall()
     return render_template("index.html", chats=chats)
 
-
 @app.route("/chat", methods=["POST"])
 def chat():
-    user = request.json["message"]
-    ai = ask_ollama(user)
+    user_msg = request.json["message"]
+    ai_msg = ask_ai(user_msg)
 
-    cur.execute("INSERT INTO chat (user, ai) VALUES (?, ?)", (user, ai))
+    cur.execute(
+        "INSERT INTO chat (user, ai) VALUES (?, ?)",
+        (user_msg, ai_msg)
+    )
     conn.commit()
 
-    return jsonify({"user": user, "ai": ai})
+    return jsonify({"user": user_msg, "ai": ai_msg})
 
-
+# ------------------ MAIN ------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
