@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My AI Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h2>🤖 AB GPT</h2>
+        <p class="tag">Personal AI Assistant</p>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div id="chat-box"></div>
+
+        <!-- 🔥 Typing Indicator -->
+        <div id="typing" class="typing" style="display: none">
+          🤖 AI is typing...
+        </div>
+
+        <div class="input-area">
+          <input type="text" id="msg" placeholder="Type your message..." />
+          <button onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function sendMsg() {
+        let msgInput = document.getElementById("msg");
+        let msg = msgInput.value.trim();
+        if (!msg) return;
+
+        let chatBox = document.getElementById("chat-box");
+        let typing = document.getElementById("typing");
+
+        // user msg
+        chatBox.innerHTML += `<div class="msg user">You: ${msg}</div>`;
+        msgInput.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 🔥 SHOW typing
+        typing.style.display = "block";
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            // 🔥 HIDE typing
+            typing.style.display = "none";
+
+            let formatted = data.ai
+              .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+              .replace(/\n/g, "<br>");
+
+            chatBox.innerHTML += `<div class="msg ai">AI:<br>${formatted}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+          })
+          .catch(() => {
+            typing.style.display = "none";
+          });
+      }
+
+      // 🔥 ENTER KEY SUPPORT
+      document.getElementById("msg").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendMsg();
+        }
+      });
+    </script>
+  </body>
+</html>
