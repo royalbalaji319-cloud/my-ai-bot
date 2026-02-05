@@ -1,24 +1,24 @@
-# 🤖 AB GPT – AI Chatbot
+#  AB GPT – AI Chatbot
 
 AB GPT is a modern AI-powered chatbot built using **Python Flask** and **OpenAI API**.  
 It provides a clean ChatGPT-like interface with real-time responses and smooth user experience.
 
 ---
 
-## ✨ Features
+##  Features
 
-- 💬 Real-time AI chat
-- ⌨️ Enter key support
-- 🤖 AI typing indicator
-- 🔄 Auto scroll to latest message
-- 🧠 Conversation continuity (context-aware replies)
-- 🎨 Clean & responsive UI
-- 🌐 Web-based chatbot
-- 🚀 Ready for live deployment
+-  Real-time AI chat
+-  Enter key support
+-  AI typing indicator
+-  Auto scroll to latest message
+-  Conversation continuity (context-aware replies)
+-  Clean & responsive UI
+-  Web-based chatbot
+-  Ready for live deployment
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Backend:** Python, Flask  
 - **Frontend:** HTML, CSS, JavaScript  
@@ -29,4 +29,13 @@ It provides a clean ChatGPT-like interface with real-time responses and smooth u
 ---
 
 ## 📁 Project Structure
+my-ai-bot/
+│── app.py
+│── requirements.txt
+│
+├── templates/
+│ └── index.html
+│
+└── static/
+└── style.css
 
